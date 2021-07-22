@@ -15,13 +15,13 @@ void CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(Quadro quadro);
 void CamadaEnlaceDadosTransmissoraControleDeErroBitParidadeImpar(Quadro quadro);
 void CamadaEnlaceDadosTransmissoraControleDeErroCRC(Quadro quadro);
 void MeioDeComunicacao(int fluxoBrutoDeBits[]);
-void AplicacaoReceptora(string mensagem);
-void CamadaDeAplicacaoReceptora(Quadro quadro);
 void CamadaEnlaceDadosReceptora(Quadro quadro);
 void CamadaEnlaceDadosReceptoraControleDeErro(Quadro quadro);
 void CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(Quadro quadro);
 void CamadaEnlaceDadosReceptoraControleDeErroBitParidadeImpar(Quadro quadro);
 void CamadaEnlaceDadosReceptoraControleDeErroCRC(Quadro quadro);
+void CamadaDeAplicacaoReceptora(Quadro quadro);
+void AplicacaoReceptora(string mensagem);
 
 
 int main() {
@@ -134,4 +134,12 @@ void CamadaEnlaceDadosReceptoraControleDeErroBitParidadeImpar(Quadro quadro) {
 
 void CamadaEnlaceDadosReceptoraControleDeErroCRC(Quadro quadro) {
     // TODO
+}
+
+void CamadaDeAplicacaoReceptora(Quadro quadro) {
+    // TODO
+}
+
+void AplicacaoReceptora(string mensagem) {
+    cout << "A mensagem recebida foi:\n" << mensagem << endl;
 }
