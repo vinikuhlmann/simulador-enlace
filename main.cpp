@@ -94,7 +94,7 @@ void MeioDeComunicacao(Quadro quadro) {
     const int porcentagemDeErros = 0; // entre 0 e 1
     
     for (int i = 0; i < TAM_QUADRO; i++) {
-        if ( (float) rand() / (float) RAND_MAX > porcentagemDeErros) {
+        if ( (float) rand() / (float) RAND_MAX < porcentagemDeErros) {
             fluxoBrutoDeBitsPontoB[i] += fluxoBrutoDeBitsPontoA[i];
         } else {
             fluxoBrutoDeBitsPontoB[i] = (fluxoBrutoDeBitsPontoA[i] == 1) ? 0 : 1;
