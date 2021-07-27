@@ -21,6 +21,7 @@ void CamadaEnlaceDadosReceptoraControleDeErroCRC(Quadro quadro);
 void CamadaDeAplicacaoReceptora(Quadro quadro);
 void AplicacaoReceptora(string mensagem);
 
+int tipoDeControleDeErro;
 
 int main() {
     AplicacaoTransmissora();
@@ -28,6 +29,8 @@ int main() {
 }
 
 void AplicacaoTransmissora() {
+    cout << "Digite: \n0 para controle de erro por bit de paridade par,\n1 para controle de erro por bit de paridade ímpar \n2 para controle de erro por CRC" << endl;
+    cin >> tipoDeControleDeErro;
     string mensagem;
     cout << "Digite uma mensagem:" << endl;
     cin >> mensagem;
@@ -46,7 +49,7 @@ void CamadaEnlaceDadosTransmissora(Quadro quadro) {
 }
 
 Quadro CamadaEnlaceDadosTransmissoraControleDeErro(Quadro quadro) {
-    int tipoDeControleDeErro = 2;
+    //int tipoDeControleDeErro = 2;
     switch (tipoDeControleDeErro) {
         case 0:
             quadro = CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(quadro);
@@ -63,15 +66,13 @@ Quadro CamadaEnlaceDadosTransmissoraControleDeErro(Quadro quadro) {
 }
 
 Quadro CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(Quadro quadro) {
-    if (!quadro.verificarParidadePar()) {
-        cout << "MENSAGEM COM ERRO, MENSAGEM NÃO POSSUI PARIDADE PAR" << endl;
-    }
+    quadro.setParidadePar();
+    return quadro;
 }
 
 Quadro CamadaEnlaceDadosTransmissoraControleDeErroBitParidadeImpar(Quadro quadro) {
-    if (!quadro.verificarParidadeImpar()) {
-        cout << "MENSAGEM COM ERRO, MENSAGEM NÃO POSSUI PARIDADE IMPAR" << endl;
-    }
+    quadro.setParidadeImpar();
+    return quadro;
 }
 
 Quadro CamadaEnlaceDadosTransmissoraControleDeErroCRC(Quadro quadro) {
@@ -80,7 +81,6 @@ Quadro CamadaEnlaceDadosTransmissoraControleDeErroCRC(Quadro quadro) {
 }
 
 void MeioDeComunicacao(Quadro fluxoBrutoDeBits) {
-
     Quadro fluxoBrutoDeBitsPontoA = Quadro(fluxoBrutoDeBits.bits), fluxoBrutoDeBitsPontoB = Quadro();
 
     int erro;
@@ -104,7 +104,7 @@ void CamadaEnlaceDadosReceptora(Quadro quadro) {
 }
 
 void CamadaEnlaceDadosReceptoraControleDeErro(Quadro quadro) {
-    int tipoDeControleDeErro = 2;
+    //int tipoDeControleDeErro = 2;
     switch (tipoDeControleDeErro) {
         case 0:
             CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(quadro);

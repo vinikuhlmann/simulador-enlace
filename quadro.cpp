@@ -5,10 +5,11 @@
 using namespace std;
 
 #define MAX_CHAR 3
-#define N_BITS MAX_CHAR*8 + CRC_BITS
+#define N_BITS MAX_CHAR*8 + CRC_BITS + PARITY_BIT
 #define Quadro_bits bitset<N_BITS>
 #define Byte bitset<8>
 #define CRC_BITS 32
+#define PARITY_BIT 1
 
 
 class Quadro {
@@ -36,7 +37,7 @@ class Quadro {
             }
 
             bits = Quadro_bits(bit_string); // converte a string em um quadro e armazena
-            bits <<= CRC_BITS; // shift dos bits para a esquerda, para caber o CRC
+            bits <<= CRC_BITS + PARITY_BIT; // shift dos bits para a esquerda, para caber o CRC e bit de paridade
         }
 
         string retornar_mensagem() {
@@ -47,7 +48,7 @@ class Quadro {
             for (int i = 0; i < MAX_CHAR; i++) {
 
                 // posicao do byte sendo lido (bitset armazena ao contrario)
-                const int byte_index = N_BITS - 8 * (i + 1) - CRC_BITS;
+                const int byte_index = N_BITS - 8 * (i + 1) - CRC_BITS - PARITY_BIT;
 
                 // le o byte
                 string bit_str;
@@ -76,11 +77,11 @@ class Quadro {
             Quadro_bits dividendo(bits);
 
             Quadro_bits divisor(CRC);
-            divisor <<= N_BITS - CRC_BITS-1;
+            divisor <<= N_BITS - CRC_BITS - PARITY_BIT;
 
-            for (int i = 0; i < N_BITS - CRC_BITS; i++) {
+            for (int i = 0; i < N_BITS - CRC_BITS - PARITY_BIT; i++) {
                 
-                const int bit = N_BITS-1 - i;
+                const int bit = N_BITS - 2 - i;
 
                 if (dividendo[bit] == 1) {
                     dividendo ^= divisor; // XOR
@@ -94,7 +95,7 @@ class Quadro {
 
         void inserir_CRC(string CRC) {
             string resto_string = resto_divisao_CRC(CRC).to_string();
-            string novo_bits = bits.to_string().replace(N_BITS - CRC_BITS, CRC_BITS, resto_string);
+            string novo_bits = bits.to_string().replace(N_BITS - CRC_BITS - PARITY_BIT, CRC_BITS, resto_string);
             bits = Quadro_bits(novo_bits);
         }
 
@@ -102,34 +103,55 @@ class Quadro {
             return resto_divisao_CRC(CRC).to_ulong() == 0;
         }
 
-        bool verificarParidadePar() {
+        // conta paridade da mensagem sem contar o bit de paridade, retorna true se par e false se impar
+        bool contarParidadeMensagem() {
             bool parity = true;
-            // conta paridade da mensagem
-            for (int i = 0; i < bits.size() - CRC_BITS; i++) {
+
+            for (int i = 0; i < bits.size() - CRC_BITS - PARITY_BIT; i++) {
                 if (bits[i]) {
                     parity = !parity;
                 }
             }
-            // retorna true se mensagem tem paridade par, falso caso contrário
-            if (parity) {
+
+            return parity;
+        }
+
+        void setParidadePar() {
+            if(contarParidadeMensagem()) { // se mensagem tem paridade par
+                bits[bits.size() - 1] = false; // seta bit de paridade como '0'
+            } else { // se mensagem tem paridade impar
+                bits[bits.size() - 1] = true; // seta bit de paridade como '1'
+            }
+        }
+
+        void setParidadeImpar() {
+            if(contarParidadeMensagem()) { // se mensagem tem paridade par
+                bits[bits.size() - 1] = true; // seta bit de paridade como '1'
+            } else { // se mensagem tem paridade impar
+                bits[bits.size() - 1] = false; // seta bit de paridade como '0'
+            }
+        }
+
+        // conta paridade da mensagem junto com bit de paridade e verifica se é par
+        bool verificarParidadePar() {
+            bool msgParity = contarParidadeMensagem();
+            bool bitParityValue = bits[bits.size() - 1];
+            // retorna true se mensagem junto com bit de paridade tem paridade par, falso caso contrário
+            if ((msgParity && !bitParityValue) || (!msgParity && bitParityValue)) {
                 return true;
-            } else {
+            } else { // não tem paridade par, teve um erro
                 return false;
             }
         }
 
+        // conta paridade da mensagem junto com bit de paridade e verifica se é impar
         bool verificarParidadeImpar() {
-            bool parity = true;
-            // conta paridade da mensagem
-            for (int i = 0; i < bits.size() - CRC_BITS; i++) {
-                if (bits[i]) {
-                    parity = !parity;
-                }
-            }
-            // retorna true se mensagem tem paridade impar, falso caso contrário
-            if (!parity) {
+            bool msgParity = contarParidadeMensagem();
+            bool bitParityValue = bits[bits.size() - 1];
+            // retorna true se mensagem junto com bit de paridade tem paridade impar, falso caso contrário
+            if ((msgParity && bitParityValue) || (!msgParity && !bitParityValue)) {
                 return true;
-            } else {
+            } else { // não tem paridade impar, teve um erro
                 return false;
             }
         }
