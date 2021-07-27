@@ -1,20 +1,18 @@
 #include <iostream>
-#include <bitset>
-
-#define TAM_QUADRO 256
-
-typedef bitset<TAM_QUADRO> Quadro;
+#include "quadro.cpp"
 
 using namespace std;
+
+#define CRC "100000100110000010001110110110111"
 
 void AplicacaoTransmissora();
 void CamadaDeAplicacaoTransmissora(string mensagem);
 void CamadaEnlaceDadosTransmissora(Quadro quadro);
-void CamadaEnlaceDadosTransmissoraControleDeErro(Quadro quadro);
-void CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(Quadro quadro);
-void CamadaEnlaceDadosTransmissoraControleDeErroBitParidadeImpar(Quadro quadro);
-void CamadaEnlaceDadosTransmissoraControleDeErroCRC(Quadro quadro);
-void MeioDeComunicacao(int fluxoBrutoDeBits[]);
+Quadro CamadaEnlaceDadosTransmissoraControleDeErro(Quadro quadro);
+Quadro CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(Quadro quadro);
+Quadro CamadaEnlaceDadosTransmissoraControleDeErroBitParidadeImpar(Quadro quadro);
+Quadro CamadaEnlaceDadosTransmissoraControleDeErroCRC(Quadro quadro);
+void MeioDeComunicacao(Quadro fluxoBrutoDeBits);
 void CamadaEnlaceDadosReceptora(Quadro quadro);
 void CamadaEnlaceDadosReceptoraControleDeErro(Quadro quadro);
 void CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(Quadro quadro);
@@ -36,68 +34,59 @@ void AplicacaoTransmissora() {
     CamadaDeAplicacaoTransmissora(mensagem);
 }
 
-// converte uma string em um bitset de tamanho fixo
-Quadro str_to_bitset(string str) {
-
-    string quadro_str;
-
-    for (int i = 0; i < str.size(); i++) {
-        // converte o caractere para um bitset de 1 byte e armazena em uma string
-        quadro_str.append(bitset<8>((int) str[i]).to_string());
-    }
-
-    quadro_str.append(bitset<8>((int) '\0').to_string());
-
-    return Quadro(quadro_str);
-}
-
 void CamadaDeAplicacaoTransmissora(string mensagem) {
-    Quadro quadro = str_to_bitset(mensagem);
-    MeioDeComunicacao(quadro);
+    Quadro quadro;
+    quadro.inserir_mensagem(mensagem);
+    CamadaEnlaceDadosTransmissora(quadro);
 }
 
 void CamadaEnlaceDadosTransmissora(Quadro quadro) {
-    // TODO
+    quadro = CamadaEnlaceDadosTransmissoraControleDeErro(quadro);
+    MeioDeComunicacao(quadro);
 }
 
-void CamadaEnlaceDadosTransmissoraControleDeErro(Quadro quadro) {
-    int tipoDeControleDeErro = 0;
+Quadro CamadaEnlaceDadosTransmissoraControleDeErro(Quadro quadro) {
+    int tipoDeControleDeErro = 2;
     switch (tipoDeControleDeErro) {
         case 0:
-            CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(quadro);
+            quadro = CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(quadro);
             break;
         case 1:
-            CamadaEnlaceDadosTransmissoraControleDeErroBitParidadeImpar(quadro);
+            quadro = CamadaEnlaceDadosTransmissoraControleDeErroBitParidadeImpar(quadro);
             break;
         case 2:
-            CamadaEnlaceDadosTransmissoraControleDeErroCRC(quadro);
+            quadro = CamadaEnlaceDadosTransmissoraControleDeErroCRC(quadro);
             break;
     }
+
+    return quadro;
 }
 
-void CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(Quadro quadro) {
+Quadro CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(Quadro quadro) {
     // TODO
 }
 
-void CamadaEnlaceDadosTransmissoraControleDeErroBitParidadeImpar(Quadro quadro) {
+Quadro CamadaEnlaceDadosTransmissoraControleDeErroBitParidadeImpar(Quadro quadro) {
     // TODO
 }
 
-void CamadaEnlaceDadosTransmissoraControleDeErroCRC(Quadro quadro) {
-    // TODO
+Quadro CamadaEnlaceDadosTransmissoraControleDeErroCRC(Quadro quadro) {
+    quadro.inserir_CRC(CRC);
+    return quadro;
 }
 
-void MeioDeComunicacao(Quadro quadro) {
-    Quadro fluxoBrutoDeBitsPontoA = quadro, fluxoBrutoDeBitsPontoB(0);
+void MeioDeComunicacao(Quadro fluxoBrutoDeBits) {
+
+    Quadro fluxoBrutoDeBitsPontoA = Quadro(fluxoBrutoDeBits.bits), fluxoBrutoDeBitsPontoB = Quadro();
 
     int erro;
-    const int porcentagemDeErros = 0; // entre 0 e 1
+    const float porcentagemDeErros = 0.2; // entre 0 e 1
     
-    for (int i = 0; i < TAM_QUADRO; i++) {
-        if ( (float) rand() / (float) RAND_MAX < porcentagemDeErros) {
-            fluxoBrutoDeBitsPontoB[i] += fluxoBrutoDeBitsPontoA[i];
+    for (int i = 0; i < N_BITS; i++) {
+        if ( (float) rand() / (float) RAND_MAX > porcentagemDeErros) {
+            fluxoBrutoDeBitsPontoB.bits[i] = fluxoBrutoDeBitsPontoA.bits[i];
         } else {
-            fluxoBrutoDeBitsPontoB[i] = (fluxoBrutoDeBitsPontoA[i] == 1) ? 0 : 1;
+            fluxoBrutoDeBitsPontoB.bits[i] = (fluxoBrutoDeBitsPontoA.bits[i] == 1) ? 0 : 1;
             erro++;
         }
     }
@@ -106,11 +95,12 @@ void MeioDeComunicacao(Quadro quadro) {
 }
 
 void CamadaEnlaceDadosReceptora(Quadro quadro) {
-    // TODO
+    CamadaEnlaceDadosReceptoraControleDeErro(quadro);
+    CamadaDeAplicacaoReceptora(quadro);
 }
 
 void CamadaEnlaceDadosReceptoraControleDeErro(Quadro quadro) {
-    int tipoDeControleDeErro = 0;
+    int tipoDeControleDeErro = 2;
     switch (tipoDeControleDeErro) {
         case 0:
             CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(quadro);
@@ -133,11 +123,13 @@ void CamadaEnlaceDadosReceptoraControleDeErroBitParidadeImpar(Quadro quadro) {
 }
 
 void CamadaEnlaceDadosReceptoraControleDeErroCRC(Quadro quadro) {
-    // TODO
+    if (quadro.CRC_checksum(CRC) == false) {
+        cout << "ERRO ENCONTRADO POR CRC!" << endl;
+    }
 }
 
 void CamadaDeAplicacaoReceptora(Quadro quadro) {
-    // TODO
+    AplicacaoReceptora(quadro.retornar_mensagem());
 }
 
 void AplicacaoReceptora(string mensagem) {
