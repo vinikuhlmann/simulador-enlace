@@ -63,11 +63,15 @@ Quadro CamadaEnlaceDadosTransmissoraControleDeErro(Quadro quadro) {
 }
 
 Quadro CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(Quadro quadro) {
-    // TODO
+    if (!quadro.verificarParidadePar()) {
+        cout << "MENSAGEM COM ERRO, MENSAGEM NÃO POSSUI PARIDADE PAR" << endl;
+    }
 }
 
 Quadro CamadaEnlaceDadosTransmissoraControleDeErroBitParidadeImpar(Quadro quadro) {
-    // TODO
+    if (!quadro.verificarParidadeImpar()) {
+        cout << "MENSAGEM COM ERRO, MENSAGEM NÃO POSSUI PARIDADE IMPAR" << endl;
+    }
 }
 
 Quadro CamadaEnlaceDadosTransmissoraControleDeErroCRC(Quadro quadro) {
@@ -115,11 +119,15 @@ void CamadaEnlaceDadosReceptoraControleDeErro(Quadro quadro) {
 }
 
 void CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(Quadro quadro) {
-    // TODO
+    if (!quadro.verificarParidadePar()) {
+        cout << "MENSAGEM COM ERRO, MENSAGEM NÃO POSSUI PARIDADE PAR" << endl;
+    }
 }
 
 void CamadaEnlaceDadosReceptoraControleDeErroBitParidadeImpar(Quadro quadro) {
-    // TODO
+    if (!quadro.verificarParidadeImpar()) {
+        cout << "MENSAGEM COM ERRO, MENSAGEM NÃO POSSUI PARIDADE IMPAR" << endl;
+    }
 }
 
 void CamadaEnlaceDadosReceptoraControleDeErroCRC(Quadro quadro) {

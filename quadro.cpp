@@ -10,6 +10,7 @@ using namespace std;
 #define Byte bitset<8>
 #define CRC_BITS 32
 
+
 class Quadro {
 
     public:
@@ -99,5 +100,37 @@ class Quadro {
 
         bool CRC_checksum(string CRC) {
             return resto_divisao_CRC(CRC).to_ulong() == 0;
+        }
+
+        bool verificarParidadePar() {
+            bool parity = true;
+            // conta paridade da mensagem
+            for (int i = 0; i < bits.size() - CRC_BITS; i++) {
+                if (bits[i]) {
+                    parity = !parity;
+                }
+            }
+            // retorna true se mensagem tem paridade par, falso caso contrário
+            if (parity) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        bool verificarParidadeImpar() {
+            bool parity = true;
+            // conta paridade da mensagem
+            for (int i = 0; i < bits.size() - CRC_BITS; i++) {
+                if (bits[i]) {
+                    parity = !parity;
+                }
+            }
+            // retorna true se mensagem tem paridade impar, falso caso contrário
+            if (!parity) {
+                return true;
+            } else {
+                return false;
+            }
         }
 };
